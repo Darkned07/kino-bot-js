@@ -81,8 +81,43 @@ function user_startBot(u) {
 function admin_startBot(u) {
   bot.sendMessage(
     u.from.id,
-    `Salom admin ${u.from.first_name} ishni boshlashingiz mumkun ✅`
+    `Salom admin ${u.from.first_name} ishni boshlashingiz mumkun ✅`,
+    {
+      reply_markup: {
+        resize_keyboard: true,
+        keyboard: [
+          ["kino kodlari", "kino kanal"],
+          ["adminlar", "userlar"],
+          ["kino qoshish", "kino o'chirish"],
+        ],
+      },
+    }
   );
+  kino_qoshish();
+}
+
+function kino_qoshish() {
+  bot.on("message", (msc) => {
+    console.log(msc.text);
+    if (msc.text === "kino kodlari") {
+      bot.sendMessage(msc.from.id, "salom admin kino qoshing");
+    } else if (msc.text === "kino kanal") {
+      bot.sendMessage(msc.from.id, "salom admin kino kanal qoshing");
+    } else if (msc.text === "adminlar") {
+      bot.sendMessage(msc.from.id, "adminlar");
+    } else if (msc.text === "userlar") {
+      bot.sendMessage(msc.from.id, "userlar ro'yxati");
+    } else if (msc.text === "kino qoshish") {
+      bot.sendMessage(msc.from.id, "kino qoshing admin");
+    } else if (msc.text === "kino o'chirish") {
+      bot.sendMessage(msc.from.id, "kino ochirish");
+    } else {
+      bot.sendMessage(
+        msc.from.id,
+        "bunday tugma mavjud emas yoki siz admin emassiz!"
+      );
+    }
+  });
 }
 
 main();
