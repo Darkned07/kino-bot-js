@@ -139,19 +139,19 @@ async function kino_yuklash(kino) {
     let movie_url;
 
     if (movie.text === "kino nomi") {
-      bot.on("message", (msc) => {
+      bot.onText("message", (msc) => {
         movieName = msc.text;
       });
+      
     } else if (movie.text === "kino idisi") {
-      bot.on("message", (msc) => {
+      bot.onText("message", (msc) => {
         movieId = movie.text;
       });
     } else if (movie.text === "kino silkasi") {
-      bot.on("message", (msc) => {
-        movie_url === movie.text;
+      bot.onText("message", (msc) => {
+        movie_url === msc.text;
       });
     } else {
-      bot.sendMessage(movie.from.id, "kino silkasini kiriting ! ❌");
     }
 
     const kino = new kinoModel({
