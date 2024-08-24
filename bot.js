@@ -3,6 +3,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const mongooseClient = require("./lib/mongoose/client");
 const userModel = require("./lib/mongoose/user.model");
 const { default: mongoose } = require("mongoose");
+const kinoModel = require("./lib/mongoose/kino.model");
 
 const bot_token = process.env.BOT_TOKEN;
 const admin_username = process.env.ADMIN_USERNAME;
@@ -53,7 +54,6 @@ function messageBot(mes) {
 }
 
 function user_startBot(u) {
-  console.log(u);
   bot.sendMessage(
     u.from.id,
     `<b>Assalomu Alaykum ${u.from.first_name}</b>` +
@@ -76,6 +76,7 @@ function user_startBot(u) {
       },
     }
   );
+  kino_find(u);
 }
 
 function admin_startBot(u) {
@@ -93,10 +94,10 @@ function admin_startBot(u) {
       },
     }
   );
-  kino_qoshish();
+  admin_tugmalari();
 }
 
-function kino_qoshish() {
+function admin_tugmalari() {
   bot.on("message", (msc) => {
     console.log(msc.text);
     if (msc.text === "kino kodlari") {
@@ -108,15 +109,81 @@ function kino_qoshish() {
     } else if (msc.text === "userlar") {
       bot.sendMessage(msc.from.id, "userlar ro'yxati");
     } else if (msc.text === "kino qoshish") {
-      bot.sendMessage(msc.from.id, "kino qoshing admin");
+      kino_yuklash(msc);
     } else if (msc.text === "kino o'chirish") {
       bot.sendMessage(msc.from.id, "kino ochirish");
-    } else {
-      bot.sendMessage(
-        msc.from.id,
-        "bunday tugma mavjud emas yoki siz admin emassiz!"
-      );
     }
+
+    // else {
+    //   bot.sendMessage(
+    //     msc.from.id,
+    //     "bunday tugma mavjud emas yoki siz admin emassiz!"
+    //   );
+    // }
+  });
+}
+
+async function kino_yuklash(kino) {
+  bot.sendMessage(kino.chat.id, "kino yuklang", {
+    reply_markup: {
+      resize_keyboard: true,
+      one_time_keyboard: true,
+      keyboard: [["kino nomi", "kino idisi", "kino silkasi"]],
+    },
+  });
+
+  bot.on("message", (movie) => {
+    let adminId = movie.chat.id;
+    let movieName;
+    let movieId;
+    let movie_url;
+
+    if (movie.text === "kino nomi") {
+      bot.on("message", (msc) => {
+        movieName = msc.text;
+      });
+    } else if (movie.text === "kino idisi") {
+      bot.on("message", (msc) => {
+        movieId = movie.text;
+      });
+    } else if (movie.text === "kino silkasi") {
+      bot.on("message", (msc) => {
+        movie_url === movie.text;
+      });
+    } else {
+      bot.sendMessage(movie.from.id, "kino silkasini kiriting ! ❌");
+    }
+
+    const kino = new kinoModel({
+      movie_name: movieName,
+      movie_id: movieId,
+      movie_url: movie_url,
+      adminId: adminId,
+    });
+
+    movieId.length > 1 &&
+      kino
+        .save()
+        .then((data) => {
+          data && bot.sendMessage(movie.chat.id, "kino yuklandi ✅");
+        })
+        .catch((err) => console.log(err));
+  });
+}
+
+async function kino_find(kf) {
+  const movies = await kinoModel.find();
+
+  bot.on("message", async (msc) => {
+    let kino;
+
+    await movies.forEach((ki) => {
+      if (Number(ki.movie_bot_id) === Number(msc.text)) {
+        kino = ki;
+      } else {
+        console.log("xatolik");
+      }
+    });
   });
 }
 
